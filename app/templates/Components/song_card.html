@@ -1,0 +1,7 @@
+{% macro albumCard(artist, song, photolink, altText) -%}
+<div class="card">
+    <h3>{{ song }}</h3>
+    <img src="{{ photolink }}" alt="{{ altText }}">
+    <p>{{ artist }}</p>
+</div>
+{%- endmacro %}

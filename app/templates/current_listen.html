@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{%block title%}Playing - {{ artist }}{% endblock %}
+{% block header %}
+<h1>I'm listening to {{ artist }}</h1>
+{% endblock %}
+{% block content %}
+<img src="{{image}}" alt="{{image_alt}} album cover">
+<p>{{ song }}</p>
+{% endblock %}

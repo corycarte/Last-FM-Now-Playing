@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% import 'Components/song_card.html' as song_card %}
+{%block title%}Last {{ count }} tracks{% endblock %}
+{% block header %}{% endblock %}
+
+{% block content %}
+{% for song in songs %}
+{{ song_card.albumCard(song['artist']['#text'], song['name'], song['image'][3]['#text'], "altText") }}
+{% endfor %}
+{% endblock %}
