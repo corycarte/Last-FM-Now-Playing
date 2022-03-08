@@ -4,25 +4,61 @@ from flask import render_template
 import requests
 import yaml
 import datetime as DT
+import json
 
 from classes.LastFmApi import LastFmApi as lastfm
 from classes.Logger import Logger
+from classes.SongInfo import Song
 
 app = Flask(__name__)
 
+def process_songs(songs) -> list:
+    res = []
+
+    for song in songs:
+        try:
+            s = Song()
+            s.set_song_info(artist=song['artist']['#text'], track=song['name'], album=song['album']['#text'])
+            s.set_image(song['image'][3]['#text'])
+
+            if '@attr' in song and song['@attr']['nowplaying']:
+                s.set_playing(True)
+
+            track = json.loads(last.get_track_info(track=s.get_track(), artist=s.get_artist(), user=last.get_user()))
+
+            if 'error' not in track:
+                s.set_listens(track['track']['userplaycount'])
+                s.set_love(track['track']['userloved'] == 1)
+            else:
+                print(f'Track error: {s.get_track()} -> {track["message"]}')
+
+            res.append(s)
+        except Exception as ex:
+            print(ex)
+
+    return res
 
 @app.route('/')
 def index():
-    songs = last.user_get_recent_tracks(limit=10)
-    if '@attr' in songs[0] and songs[0]['@attr']['nowplaying']:
-        logger.write_log(f'Return now playing info')
-        return render_template('current_listen.html',
-                               artist=songs[0]['artist']['#text'],
-                               song=songs[0]['name'],
-                               image=songs[0]['image'][2]['#text'],
-                               image_alt=songs[0]['album']['#text'])
+    try:
+        songs = last.process_songs(last.user_get_recent_tracks(limit=1))
 
-    return render_template('recent_tracks.html', songs=songs, count=len(songs))
+        if songs[0].playing():
+            return render_template('current_listen.html', user=last.get_user(), song=songs[0])
+
+        top_albums = last.process_albums(last.user_get_top_albums(limit=12, period='7day'))
+
+        return render_template('recent_tracks.html', user=last.get_user(), scrobbles=last.get_user_scrobbles(), last_song=songs[0], count=len(songs), top_albums=top_albums)
+    except Exception as ex:
+        print(f'index: {ex}')
+        return render_template('Error.html')
+
+
+@app.route('/debug')
+def debug():
+    res = process_songs(last.user_get_recent_tracks(limit=4))
+
+    return render_template('debug.html', debug=json.dumps(res))
 
 
 logger = Logger('log.txt')
@@ -43,4 +79,4 @@ except Exception as ex:
 logger.write_log(message='Starting server')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)

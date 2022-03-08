@@ -1,10 +1,22 @@
 {% extends 'base.html' %}
 {% import 'Components/song_card.html' as song_card %}
-{%block title%}Last {{ count }} tracks{% endblock %}
+{%block title%}Last {{ count }} tracks for {{ user }}{% endblock %}
 {% block header %}{% endblock %}
 
 {% block content %}
-{% for song in songs %}
-{{ song_card.albumCard(song['artist']['#text'], song['name'], song['image'][3]['#text'], "altText") }}
-{% endfor %}
+<div id="container" class="last_played">
+    <div class="stat_box">
+            <div class="header">Scrobbles</div>
+            <div class="scrobbles">{{ scrobbles }}</div>
+    </div>
+    <div class="stat_box">
+        {{ song_card.albumCard(last_song) }}
+    </div>
+    <div class="list">Top Albums - Last 7 Days</div>
+    <div class="albums">
+        {% for album in top_albums %}
+        <img class="top_albums" src="{{ album.get_image() }}">
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

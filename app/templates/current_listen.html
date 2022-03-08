@@ -1,9 +1,21 @@
 {% extends 'base.html' %}
-{%block title%}Playing - {{ artist }}{% endblock %}
+{%block title%}Playing - {{ song.get_track() }}{% endblock %}
+
 {% block header %}
-<h1>I'm listening to {{ artist }}</h1>
+<h1>I'm listening to {{ song.get_artist() }}</h1>
 {% endblock %}
+
 {% block content %}
-<img src="{{image}}" alt="{{image_alt}} album cover">
-<p>{{ song }}</p>
+<div id="container">	
+    <div class="artwork" style="background-image: url({{ song.get_image() }})"></div>
+    <section id="main">
+        <img class="art_image" src="{{ song.get_image() }}" width="500" height="500">
+        <div class="text">
+            <div class="track">{{ song.get_track() }}</div>
+            <div class="artist">{{ song.get_artist() }}</div>
+            <div class="album">{{ song.get_album() }}</div>
+            <div class="number">{{ song.get_listens()}} Plays{{ '  ❤️' if song.loved() else '   ️' }}</div>
+        </div>
+    </section>		
+</div>
 {% endblock %}

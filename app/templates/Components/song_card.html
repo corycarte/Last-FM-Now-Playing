@@ -1,7 +1,9 @@
-{% macro albumCard(artist, song, photolink, altText) -%}
-<div class="card">
-    <h3>{{ song }}</h3>
-    <img src="{{ photolink }}" alt="{{ altText }}">
-    <p>{{ artist }}</p>
-</div>
+
+{% macro albumCard(songObj) -%}
+
+    <div class="play_box">
+        <div class="track">{{ songObj.get_track() }}</div>
+        <div class="artist">{{ songObj.get_artist() }}</div>
+    </div>
+    <br />
 {%- endmacro %}
