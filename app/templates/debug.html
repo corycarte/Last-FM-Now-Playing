@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
 {% from 'Components/stats.html' import getStats %}
 {% block title %}Debugging{% endblock %}
+{% block header %}
+<script>
+    duration=60;
+    window.onload = waitAndReload();
+</script>
+{% endblock %}
 {% block content %}
 <div id="container" class="last_played">
     <div class="stat_box">

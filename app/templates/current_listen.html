@@ -2,6 +2,10 @@
 {%block title%}Playing - {{ song.get_track() }}{% endblock %}
 
 {% block header %}
+<script>
+    duration=30;
+    window.onload = waitAndReload();
+</script>
 <h1>I'm listening to {{ song.get_artist() }}</h1>
 {% endblock %}
 

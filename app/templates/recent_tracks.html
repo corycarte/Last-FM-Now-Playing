@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% import 'Components/song_card.html' as song_card %}
 {%block title%}Last {{ count }} tracks for {{ user }}{% endblock %}
-{% block header %}{% endblock %}
-
+{% block header %}
+<script>
+    duration=60;
+    window.onload = waitAndReload();
+</script>
+{% endblock %}
 {% block content %}
 <div id="container" class="last_played">
     <div class="stat_box">
@@ -10,13 +14,12 @@
             <div class="scrobbles">{{ scrobbles }}</div>
     </div>
     <div class="stat_box">
-        {{ song_card.albumCard(last_song) }}
+        <div class="play_box">
+            <div class="track">{{ last_song.get_track() }}</div>
+            <div class="artist">{{ last_song.get_artist() }}</div>
+        </div>
     </div>
-    <div class="list">Top Albums - Last 7 Days</div>
-    <div class="albums">
-        {% for album in top_albums %}
-        <img class="top_albums" src="{{ album.get_image() }}">
-        {% endfor %}
-    </div>
+    <div class="list">{{ ''.join(stat) }}</div>
+    {{ getStats(stat[0], data) }}
 </div>
 {% endblock %}

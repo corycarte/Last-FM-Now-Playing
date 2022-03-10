@@ -38,11 +38,10 @@ def index():
         if songs[0].playing():
             return render_template('current_listen.html', user=last.get_user(), song=songs[0])
 
-        top_section = last.process_albums(last.user_get_top_albums(limit=12, period='7day'))
-
-        return render_template('recent_tracks.html', user=last.get_user(), scrobbles=last.get_user_scrobbles(), last_song=songs[0], count=len(songs), top_albums=top_section)
+        stat_type, top = get_top_section()
+        return render_template('debug.html', user=last.get_user(), scrobbles=last.get_user_scrobbles(), last_song=songs[0], stat=stat_type, data=top)
     except Exception as ex:
-        print(f'index: {ex}')
+        logger.write_log(message=str(ex), level=1)
         return render_template('Error.html')
 
 
