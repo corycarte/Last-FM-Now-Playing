@@ -1,18 +1,46 @@
 import datetime as DT
 
+class Artist:
+    _artist = None
+    _image = None
+    _listens = None
+
+    def __init__(self):
+        self._artist = None
+        self._image = None
+        self._listens = None
+
+    def set_artist(self, artist: str) -> None:
+        self._artist = artist
+
+    def get_artist(self) -> str:
+        return self._artist
+
+    def set_image(self, im_link: str) -> None:
+        self._image = im_link
+
+    def get_image(self) -> str:
+        return self._image
+
+    def set_listens(self, listens: int) -> None:
+        self._listens = listens
+
+    def get_listens(self) -> int:
+        return self._listens
+
 class Album:
     _artist = None
     _album = None
     _image = None
     _listens = None
-    # _release = None
+    _release = None
 
     def __init__(self):
         self._artist = None
         self._album = None
         self._image = None
         self._listens = 0
-        # self._release = DT.datetime()
+        self._release = DT.datetime.now()
 
     def __repr__(self):
         return f"{self._album} by {self._artist}"

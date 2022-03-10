@@ -1,5 +1,19 @@
 {% extends 'base.html' %}
+{% from 'Components/stats.html' import getStats %}
 {% block title %}Debugging{% endblock %}
 {% block content %}
-{{ debug }}
+<div id="container" class="last_played">
+    <div class="stat_box">
+            <div class="header">Scrobbles</div>
+            <div class="scrobbles">{{ scrobbles }}</div>
+    </div>
+    <div class="stat_box">
+        <div class="play_box">
+            <div class="track">{{ last_song.get_track() }}</div>
+            <div class="artist">{{ last_song.get_artist() }}</div>
+        </div>
+    </div>
+    <div class="list">{{ ''.join(stat) }}</div>
+    {{ getStats(stat[0], data) }}
+</div>
 {% endblock %}

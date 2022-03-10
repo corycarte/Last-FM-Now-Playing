@@ -1,0 +1,17 @@
+{% from 'Components/artist_card.html' import artistCard %}
+
+{% macro getStats(stat_type, data) -%}
+    {% if stat_type == "Top Artists" %}
+        <div class="artsts">
+        {% for artist in data %}
+            {{ artistCard(artist) }}
+        {% endfor %}
+        </div>
+    {% elif stat_type == "Top Albums" %}
+        <div class="albums">
+        {% for album in data %}
+            <img class="top_albums" src="{{ album.get_image() }}">
+        {% endfor %}
+        </div>
+    {% endif %}
+{%- endmacro %}

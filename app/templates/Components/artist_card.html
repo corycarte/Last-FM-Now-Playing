@@ -1,0 +1,8 @@
+{% macro artistCard(artistObj) -%}
+    <div class="top_artist">
+    <div class="play_box">
+        <div class="artist">{{ artistObj.get_artist() }}</div>
+        <div class="track">Listens: {{ artistObj.get_listens() }}</div>
+    </div>
+    </div>
+{%- endmacro %}

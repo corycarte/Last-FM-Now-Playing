@@ -4,13 +4,14 @@ import datetime
 import time
 
 from . import SongInfo
+from . import Logger
 
 API_ROOT = "https://ws.audioscrobbler.com/2.0/"
 
 class LastFmApi_Error(Exception):
     def __init__(self, message="An error occurred in the call to LastFM"):
         self.message = message
-        super().__init__(self.message) 
+        super().__init__(self.message)
 
 
 class LastFmApi:
@@ -22,12 +23,14 @@ class LastFmApi:
     def __init__(self, api_key: str):
         self._api_key = api_key
 
-
-    def _make_api_request(self, endpoint: str) -> None:
+    def _make_api_request(self, endpoint: str) -> requests.Request():
         return requests.get(endpoint)
 
-    def _write_log(self, message: str) -> None:
-        pass
+    def _write_log(self, message: str, logger: Logger.Logger = None) -> None:
+        if logger:
+            logger.write_log(message=message)
+        else:
+            print(message)
 
     # User commands
     def set_user(self, user: str):
@@ -38,14 +41,17 @@ class LastFmApi:
         return self._user
 
     def get_user_scrobbles(self) -> int:
-        endpoint = f'{API_ROOT}/?method=user.getinfo&user={self._user}&api_key={self._api_key}&format=json'
-        res = self._make_api_request(endpoint)
+        try:
+            endpoint = f'{API_ROOT}/?method=user.getinfo&user={self._user}&api_key={self._api_key}&format=json'
+            res = self._make_api_request(endpoint)
 
-        if res.status_code == 200:
-            tmp = json.loads(res.text)
-            return int(tmp['user']['playcount'])
-        else:
-            raise(LastFmApi_Error(message=f'LastFm response {res.status_code}'))
+            if res.status_code == 200:
+                tmp = json.loads(res.text)
+                return int(tmp['user']['playcount'])
+            else:
+                raise(LastFmApi_Error(message=f'LastFm response {res.status_code}'))
+        except Exception as ex:
+            raise (LastFmApi_Error(message=f'LastFM API Error {ex}'))
 
     def user_get_recent_tracks(self, limit:int=None, page:int=None, from_date:datetime=None, to_date:datetime=None, extended:bool = False) -> list:
         base_endpoint = API_ROOT + '?method=user.getrecenttracks&user={user_name}&api_key={key}&format=json'.format(user_name=self._user, key=self._api_key)
@@ -104,6 +110,24 @@ class LastFmApi:
         if res.status_code == 200:
             res = json.loads(res.text)
             return res['topalbums']['album']
+
+        raise LastFmApi_Error(message=f'LastFM error {res.status_code}')
+
+
+    def user_get_top_artists(self, period: str = None, limit: int = None):
+        endpoint = API_ROOT + f'?method=user.gettopartists&user={self._user}&api_key={self._api_key}&format=json'
+
+        if period:
+            endpoint += f'&period={period}'
+
+        if limit:
+            endpoint += f'&limit={limit}'
+
+        res = self._make_api_request(endpoint)
+
+        if res.status_code == 200:
+            res = json.loads(res.text)
+            return res['topartists']['artist']
 
         raise LastFmApi_Error(message=f'LastFM error {res.status_code}')
 
@@ -173,6 +197,18 @@ class LastFmApi:
                 res.append(s)
             except Exception as ex:
                 print(f'LastFmApi.process_songs: {ex}')
+
+        return res
+
+    def process_artists(self, artists: list) -> list:
+        res = []
+
+        for artist in artists:
+            a = SongInfo.Artist()
+            a.set_artist(artist['name'])
+            a.set_listens(artist['playcount'])
+            a.set_image(artist['image'][3]['#text'])
+            res.append(a)
 
         return res
 

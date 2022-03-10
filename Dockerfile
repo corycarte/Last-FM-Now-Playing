@@ -8,6 +8,6 @@ ENV FLASK_RUN_HOST=0.0.0.0
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-COPY . .
+COPY ./app .
 
 CMD ["flask", "run"]

@@ -1,10 +1,10 @@
 from flask import Flask
 from flask import render_template
 
-import requests
 import yaml
 import datetime as DT
 import json
+import random
 
 from classes.LastFmApi import LastFmApi as lastfm
 from classes.Logger import Logger
@@ -12,31 +12,23 @@ from classes.SongInfo import Song
 
 app = Flask(__name__)
 
-def process_songs(songs) -> list:
-    res = []
 
-    for song in songs:
-        try:
-            s = Song()
-            s.set_song_info(artist=song['artist']['#text'], track=song['name'], album=song['album']['#text'])
-            s.set_image(song['image'][3]['#text'])
+def get_top_section() -> tuple:
+    data = None
+    time = random.randint(0, (len(time_frames) - 1))
+    stat = random.randint(0, (len(stats) - 1))
+    stat_type = stats[stat][0], f' - Last {time_frames[time][0]}' if time > 0 else ' - All Time'
 
-            if '@attr' in song and song['@attr']['nowplaying']:
-                s.set_playing(True)
+    logger.write_log(message=f'Retrieving {"".join(stat_type)}')
 
-            track = json.loads(last.get_track_info(track=s.get_track(), artist=s.get_artist(), user=last.get_user()))
+    if stat == 0:
+        data = last.process_albums(last.user_get_top_albums(period=time_frames[time][1], limit=stats[stat][1]))
+    elif stat == 1:
+        data = last.process_artists(last.user_get_top_artists(period=time_frames[time][1], limit=stats[stat][1]))
+    else:
+        raise ValueError(stat)
 
-            if 'error' not in track:
-                s.set_listens(track['track']['userplaycount'])
-                s.set_love(track['track']['userloved'] == 1)
-            else:
-                print(f'Track error: {s.get_track()} -> {track["message"]}')
-
-            res.append(s)
-        except Exception as ex:
-            print(ex)
-
-    return res
+    return stat_type, data
 
 @app.route('/')
 def index():
@@ -46,9 +38,9 @@ def index():
         if songs[0].playing():
             return render_template('current_listen.html', user=last.get_user(), song=songs[0])
 
-        top_albums = last.process_albums(last.user_get_top_albums(limit=12, period='7day'))
+        top_section = last.process_albums(last.user_get_top_albums(limit=12, period='7day'))
 
-        return render_template('recent_tracks.html', user=last.get_user(), scrobbles=last.get_user_scrobbles(), last_song=songs[0], count=len(songs), top_albums=top_albums)
+        return render_template('recent_tracks.html', user=last.get_user(), scrobbles=last.get_user_scrobbles(), last_song=songs[0], count=len(songs), top_albums=top_section)
     except Exception as ex:
         print(f'index: {ex}')
         return render_template('Error.html')
@@ -56,13 +48,23 @@ def index():
 
 @app.route('/debug')
 def debug():
-    res = process_songs(last.user_get_recent_tracks(limit=4))
+    try:
+        songs = last.process_songs(last.user_get_recent_tracks(limit=1))
 
-    return render_template('debug.html', debug=json.dumps(res))
+        if songs[0].playing():
+            return render_template('current_listen.html', user=last.get_user(), song=songs[0])
+
+        stat_type, top = get_top_section()
+        return render_template('debug.html', user=last.get_user(), scrobbles=last.get_user_scrobbles(), last_song=songs[0], stat=stat_type, data=top)
+    except Exception as ex:
+        logger.write_log(message=str(ex), level=1)
+        return render_template('Error.html')
 
 
 logger = Logger('log.txt')
 key = user = None
+time_frames = [("All Time", "overall"), ("7 Days", "7day"), ("3 Months", "3month"), ("Month", "1month"), ("6 Months", "6month"), ("12 Months", "12month")]
+stats = [("Top Albums", 12), ("Top Artists", 6)] #, ("Top Tags", 4), ("Top Tracks", 12)]
 
 try:
     logger.write_log(message="Loading config.yaml")
@@ -75,8 +77,9 @@ try:
     last.set_user(user)
 except Exception as ex:
     logger.write_log(message=str(ex), level=1)
+    exit(1)
 
 logger.write_log(message='Starting server')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
