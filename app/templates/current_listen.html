@@ -6,7 +6,6 @@
     duration=30;
     window.onload = waitAndReload();
 </script>
-<h1>I'm listening to {{ song.get_artist() }}</h1>
 {% endblock %}
 
 {% block content %}
@@ -15,10 +14,10 @@
     <section id="main">
         <img class="art_image" src="{{ song.get_image() }}" width="500" height="500">
         <div class="text">
-            <div class="track">{{ song.get_track() }}</div>
+            <div class="track">{{ song.get_track() }} {{ '🤍' if song.loved() == '1' else '💔' }}</div>
             <div class="artist">{{ song.get_artist() }}</div>
             <div class="album">{{ song.get_album() }}</div>
-            <div class="number">{{ song.get_listens()}} Plays{{ '  ❤️' if song.loved() else '   ️' }}</div>
+            <div class="number">{{ song.get_listens()}} Plays</div>
         </div>
     </section>		
 </div>

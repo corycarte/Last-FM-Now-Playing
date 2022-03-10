@@ -24,6 +24,7 @@ class LastFmApi:
         self._api_key = api_key
 
     def _make_api_request(self, endpoint: str) -> requests.Request():
+        print(f"Calling LastFM API with endpoint: {endpoint}")
         return requests.get(endpoint)
 
     def _write_log(self, message: str, logger: Logger.Logger = None) -> None:
@@ -190,7 +191,7 @@ class LastFmApi:
 
                 if 'error' not in track:
                     s.set_listens(track['track']['userplaycount'])
-                    s.set_love(track['track']['userloved'] == 1)
+                    s.set_love(track['track']['userloved'])
                 else:
                     print(f'Track error: {s.get_track()} -> {track["message"]}')
 

@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 {% block title %}ERROR!!!{% endblock %}
+{% block header %}
+<script>
+    duration=10;
+    window.onload = waitAndReload();
+</script>
+{% endblock %}
 {% block content %}
 <h1>An error occurred...</h1>
 {% endblock %}

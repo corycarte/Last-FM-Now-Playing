@@ -91,6 +91,7 @@ class Song(Album):
         self._album = album
 
     def set_love(self, love: bool) -> None:
+        print(f"Setting love to {love}")
         self._love=love
 
     def set_playing(self, p: bool) -> None:
