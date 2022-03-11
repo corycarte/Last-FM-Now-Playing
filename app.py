@@ -1,14 +1,13 @@
+import datetime as datetime
 from flask import Flask
 from flask import render_template
 
 import yaml
-import datetime as DT
-import json
 import random
+import datetime
 
 from classes.LastFmApi import LastFmApi as lastfm
 from classes.Logger import Logger
-from classes.SongInfo import Song
 
 app = Flask(__name__)
 
@@ -54,7 +53,7 @@ def debug():
         return render_template('Error.html')
 
 
-logger = Logger('log.txt')
+logger = Logger(f"{datetime.date.today().strftime('%Y%m%d')}_Site.txt")
 key = user = None
 time_frames = [("All Time", "overall"), ("7 Days", "7day"), ("3 Months", "3month"), ("Month", "1month"), ("6 Months", "6month"), ("12 Months", "12month")]
 stats = [("Top Albums", 12), ("Top Artists", 6)] #, ("Top Tags", 4), ("Top Tracks", 12)]
