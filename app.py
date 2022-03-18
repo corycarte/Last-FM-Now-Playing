@@ -5,6 +5,7 @@ from flask import render_template
 import yaml
 import random
 import datetime
+import shutil
 
 from classes.LastFmApi import LastFmApi as lastfm
 from classes.Logger import Logger
@@ -53,7 +54,7 @@ def debug():
         return render_template('Error.html')
 
 
-logger = Logger(f"{datetime.date.today().strftime('%Y%m%d')}_Site.txt")
+logger = Logger(f"{datetime.date.today().strftime('%Y%m%d')}_Site_log.txt")
 key = user = None
 time_frames = [("All Time", "overall"), ("7 Days", "7day"), ("3 Months", "3month"), ("Month", "1month"), ("6 Months", "6month"), ("12 Months", "12month")]
 stats = [("Top Albums", 12), ("Top Artists", 6)] #, ("Top Tags", 4), ("Top Tracks", 12)]
@@ -69,6 +70,7 @@ try:
     last.set_user(user)
 except Exception as ex:
     logger.write_log(message=str(ex), level=1)
+    shutil.copyfile('template_config.yaml', 'config.yaml')
     exit(1)
 
 logger.write_log(message='Starting server')
